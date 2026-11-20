@@ -1,0 +1,64 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class SavingsAccount {
+private:
+    long long accountNumber;
+    double balance;
+    double transactions[10];
+    int count;
+    int next; // position where the next transaction is stored
+
+    void record(double amount) {
+        transactions[next] = amount;
+        next = (next + 1) % 10;
+        if (count < 10) ++count;
+    }
+
+public:
+    SavingsAccount(long long number, double opening)
+        : accountNumber(number), balance(opening), count(0), next(0) {}
+
+    void deposit(double amount);     // defined outside the class
+    bool withdraw(double amount);    // defined outside the class
+    void miniStatement() const;      // defined outside the class
+};
+
+void SavingsAccount::deposit(double amount) {
+    if (amount <= 0) {
+        cout << "Invalid deposit\n";
+        return;
+    }
+    balance += amount;
+    record(amount);
+}
+
+bool SavingsAccount::withdraw(double amount) {
+    if (amount <= 0 || amount > balance) {
+        cout << "Withdrawal rejected\n";
+        return false;
+    }
+    balance -= amount;
+    record(-amount);
+    return true;
+}
+
+void SavingsAccount::miniStatement() const {
+    cout << "Account: " << accountNumber << '\n';
+    cout << "Balance: " << balance << '\n';
+    cout << "Recent transactions (oldest to newest):\n";
+    int start = (count == 10) ? next : 0;
+    for (int i = 0; i < count; ++i)
+        cout << transactions[(start + i) % 10] << '\n';
+}
+
+int main() {
+    SavingsAccount account(10001, 1000.0);
+    account.deposit(200);
+    account.withdraw(100);
+    account.deposit(50);
+    account.withdraw(25);
+    account.miniStatement();
+    return 0;
+}

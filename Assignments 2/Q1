@@ -1,0 +1,22 @@
+#include <iostream>
+using namespace std;
+void byValue(long long fee, int percent) {
+    fee -= fee * percent / 100;
+}
+void byReference(long long& fee, int percent) {
+    fee -= fee * percent / 100;
+}
+void byPointer(long long* fee, int percent) {
+    if (fee != nullptr)
+        *fee -= *fee * percent / 100;
+}
+int main() {
+    long long fee1 = 45000, fee2 = 45000, fee3 = 45000;
+    byValue(fee1, 10);
+    byReference(fee2, 10);
+    byPointer(&fee3, 10);
+    cout << "Call by Value: " << fee1 << '\n';
+    cout << "Call by Reference: " << fee2 << '\n';
+    cout << "Call by Pointer: " << fee3 << '\n';
+    return 0;
+}
