@@ -1,0 +1,15 @@
+#include <iostream>
+#include <iomanip>
+int main() {
+ const long long journeys[] = {20000, 500000, 3000000};
+ const long long farePaise = 3600;
+ for (long long n : journeys) {
+ long long totalPaise = n * farePaise;
+ double totalRupees = static_cast<double>(n) * 36.0;
+ std::cout << "Journeys: " << n
+ << " integer paise: " << totalPaise
+ << " double rupees: " << std::fixed
+ << std::setprecision(2) << totalRupees << '\n';
+ }
+ return 0;
+}

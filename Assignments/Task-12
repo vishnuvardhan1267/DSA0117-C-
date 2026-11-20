@@ -1,0 +1,91 @@
+#include <iostream>
+#include <array>
+#include <cstddef>
+enum class Zone {
+ Inner = 0,
+ Middle = 1,
+ Outer = 2,
+ Airport = 3
+};
+constexpr std::array<long long, 4> FARE_PAISE = {
+ 1000, 2000, 3000, 6000
+};
+constexpr long long MIN_BALANCE_PAISE = 5000;
+bool isPeak(int hour) {
+ return (hour >= 8 && hour < 10) ||
+ (hour >= 17 && hour < 20);
+}
+long long calculateFare(Zone zone, int hour, bool weekend) {
+ if (hour < 0 || hour > 23) {
+ return -1;
+ }
+std::size_t index = static_cast<std::size_t>(zone);
+if (index >= FARE_PAISE.size()) {
+ return -1;
+ }
+long long fare = FARE_PAISE[index];
+if (weekend) {
+ fare -= fare * 10 / 100;
+ }
+ else if (isPeak(hour)) {
+ fare += fare * 20 / 100;
+ }
+ return fare;
+}
+class SmartCard {
+private:
+ long long balance;
+public:
+ explicit SmartCard(long long initial) {
+ balance = (initial >= 0) ? initial : 0;
+ }
+ long long getBalance() const {
+ return balance;
+ }
+ bool deduct(long long fare) {
+ if (fare < 0 || balance < fare ||
+ balance - fare < MIN_BALANCE_PAISE) {
+ return false;
+ }
+ balance -= fare;
+ return true;
+ }
+};
+class Pass {
+private:
+ Zone firstZone;
+ Zone secondZone;
+ bool valid;
+public:
+ Pass(Zone a, Zone b, bool isValid) {
+ firstZone = a;
+ secondZone = b;
+ valid = isValid;
+ }
+ bool covers(Zone z) const {
+ return valid &&
+ (z == firstZone || z == secondZone);
+ }
+};
+int main() {
+ SmartCard card(20000);
+ Pass monthlyPass(Zone::Inner, Zone::Middle, true);
+ Zone trip1 = Zone::Inner;
+ if (monthlyPass.covers(trip1)) {
+ std::cout << "Pass accepted; fare Rs 0.00" << std::endl;
+ }
+ else {
+ long long f = calculateFare(trip1, 9, false);
+ if (card.deduct(f)) {
+ std::cout << "Card charged paise: " << f << std::endl;
+ }
+ else {
+ std::cout << "Travel denied" << std::endl;
+ }
+ }
+ long long airportWeekend =
+ calculateFare(Zone::Airport, 18, true);
+ std::cout << "Airport weekend fare paise: "
+ << airportWeekend << std::endl;
+ return 0;
+}
