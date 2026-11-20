@@ -1,0 +1,39 @@
+#include <cstring>
+#include <iostream>
+class Text {
+    char* data;
+public:
+    Text(const char* s = "") {
+        std::size_t n = std::strlen(s);
+        data = new char[n + 1];
+        std::memcpy(data, s, n + 1);
+    }
+    Text(const Text& o) : Text(o.data) {}
+    Text& operator=(const Text& o) {
+        if (this != &o) {
+            char* fresh = new char[std::strlen(o.data) + 1];
+            std::strcpy(fresh, o.data);
+            delete[] data;
+            data = fresh;
+        }
+        return *this;
+    }
+    ~Text() { delete[] data; }
+    Text operator+(const Text& o) const {
+        std::size_t a = std::strlen(data), b = std::strlen(o.data);
+        char* joined = new char[a + b + 1];
+        std::strcpy(joined, data); std::strcat(joined, o.data);
+        Text result(joined); delete[] joined; return result;
+    }
+    bool operator==(const Text& o) const { return std::strcmp(data, o.data) == 0; }
+    bool operator!=(const Text& o) const { return !(*this == o); }
+    friend std::ostream& operator<<(std::ostream& out, const Text& t) { return out << t.data; }
+};
+int main() {
+    Text a("Hello "), b("World"), c("");
+    Text d = a + b;
+    Text e; e = d;
+    std::cout << d << '\n' << std::boolalpha << (d == e) << ' ' << (c != e) << '\n';
+    e = e;
+    std::cout << e << '\n';
+}

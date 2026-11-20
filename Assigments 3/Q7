@@ -1,0 +1,50 @@
+#include <cmath>
+#include <iostream>
+#include <stdexcept>
+class Complex {
+    double re, im;
+public:
+    Complex() : re(0), im(0) {}
+    Complex(double real) : re(real), im(0) {}
+    Complex(double real, double imag) : re(real), im(imag) {}
+    double real() const { return re; }
+    double imag() const { return im; }
+    double magnitude() const { return std::sqrt(re*re + im*im); }
+    Complex operator+(const Complex& z) const { return {re+z.re, im+z.im}; }
+    Complex operator-(const Complex& z) const { return {re-z.re, im-z.im}; }
+    Complex operator*(const Complex& z) const {
+        return {re*z.re-im*z.im, re*z.im+im*z.re};
+    }
+    Complex operator/(const Complex& z) const {
+        double den = z.re*z.re + z.im*z.im;
+        if (den == 0.0) throw std::runtime_error("Division by zero impedance");
+        return {(re*z.re+im*z.im)/den, (im*z.re-re*z.im)/den};
+    }
+    bool operator==(const Complex& z) const {
+        const double eps = 1e-9;
+        return std::abs(re-z.re)<eps && std::abs(im-z.im)<eps;
+    }
+    friend std::ostream& operator<<(std::ostream& out, const Complex& z) {
+        out << z.re;
+        if (z.im >= 0) out << " + j" << z.im;
+        else out << " - j" << -z.im;
+        return out;
+    }
+};
+int main() {
+    const double R = 10.0, XL = 5.0, XC = 2.0;
+    Complex resistor(R, 0), inductor(0, XL), capacitor(0, -XC);
+    Complex series = resistor + inductor + capacitor;
+    Complex z1 = resistor + inductor;
+    Complex z2 = Complex(20, 0);
+    Complex parallel = (z1 * z2) / (z1 + z2);
+    std::cout << "Series impedance: " << series << '\n';
+    std::cout << "Series magnitude: " << series.magnitude() << '\n';
+    std::cout << "Parallel impedance: " << parallel << '\n';
+    try {
+        Complex invalid = series / Complex(0, 0);
+        std::cout << invalid << '\n';
+    } catch (const std::runtime_error& e) {
+        std::cout << e.what() << '\n';
+    }
+}
